@@ -1,3 +1,4 @@
+```typescript
 import { create } from "zustand";
 import { type Themes, type ThemeProperties } from "@/lib/presentation/themes";
 import { type ImageModelList } from "@/app/_actions/image/generate";
@@ -9,7 +10,6 @@ interface PresentationState {
   isGridView: boolean;
   isSheetOpen: boolean;
   numSlides: number;
-  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
   theme: Themes | string;
   customThemeData: ThemeProperties | null;
   language: string;
@@ -23,26 +23,25 @@ interface PresentationState {
   currentSlideIndex: number;
   isThemeCreatorOpen: boolean;
 
+  // New property
+  imageGenerationModelOpen: boolean;
+
   // Generation states
   shouldStartOutlineGeneration: boolean;
   shouldStartPresentationGeneration: boolean;
   isGeneratingOutline: boolean;
   isGeneratingPresentation: boolean;
   outline: string[];
-  slides: PlateSlide[]; // This now holds the new object structure
+  slides: PlateSlide[];
 
   setSlides: (slides: PlateSlide[]) => void;
   setCurrentPresentation: (id: string | null, title: string | null) => void;
   setIsGridView: (isGrid: boolean) => void;
   setIsSheetOpen: (isOpen: boolean) => void;
   setNumSlides: (num: number) => void;
-  setTheme: (
-    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-    theme: Themes | string,
-    customData?: ThemeProperties | null
-  ) => void;
+  setTheme: (theme: Themes | string, customData?: ThemeProperties | null) => void;
   shouldShowExitHeader: boolean;
-  setShouldShowExitHeader: (udpdate: boolean) => void;
+  setShouldShowExitHeader: (update: boolean) => void;
   setLanguage: (lang: string) => void;
   setPageStyle: (style: string) => void;
   setShowTemplates: (show: boolean) => void;
@@ -57,6 +56,8 @@ interface PresentationState {
   previousSlide: () => void;
 
   setIsThemeCreatorOpen: (update: boolean) => void;
+  setImageGenerationModelOpen: (isOpen: boolean) => void; // New method
+
   // Generation actions
   setShouldStartOutlineGeneration: (shouldStart: boolean) => void;
   setShouldStartPresentationGeneration: (shouldStart: boolean) => void;
@@ -92,11 +93,14 @@ export const usePresentationState = create<PresentationState>((set) => ({
   customThemeData: null,
   imageModel: "black-forest-labs/FLUX.1-schnell-Free",
   presentationStyle: "professional",
-  slides: [], // Now holds the new slide object structure
+  slides: [],
   savingStatus: "idle",
   isPresenting: false,
   currentSlideIndex: 0,
   isThemeCreatorOpen: false,
+
+  // New property initialization
+  imageGenerationModelOpen: false,
 
   // Generation states
   shouldStartOutlineGeneration: false,
@@ -114,10 +118,7 @@ export const usePresentationState = create<PresentationState>((set) => ({
   setNumSlides: (num) => set({ numSlides: num }),
   setLanguage: (lang) => set({ language: lang }),
   setTheme: (theme, customData = null) =>
-    set({
-      theme: theme,
-      customThemeData: customData,
-    }),
+    set({ theme: theme, customThemeData: customData }),
   setPageStyle: (style) => set({ pageStyle: style }),
   setShowTemplates: (show) => set({ showTemplates: show }),
   setPresentationInput: (input) => set({ presentationInput: input }),
@@ -129,15 +130,16 @@ export const usePresentationState = create<PresentationState>((set) => ({
   setCurrentSlideIndex: (index) => set({ currentSlideIndex: index }),
   nextSlide: () =>
     set((state) => ({
-      currentSlideIndex: Math.min(
-        state.currentSlideIndex + 1,
-        state.slides.length - 1
-      ),
+      currentSlideIndex: Math.min(state.currentSlideIndex + 1, state.slides.length - 1),
     })),
   previousSlide: () =>
     set((state) => ({
       currentSlideIndex: Math.max(state.currentSlideIndex - 1, 0),
     })),
+
+  // New method implementation
+  setImageGenerationModelOpen: (isOpen) => 
+    set({ imageGenerationModelOpen: isOpen }),
 
   // Generation actions
   setShouldStartOutlineGeneration: (shouldStart) =>
@@ -149,27 +151,14 @@ export const usePresentationState = create<PresentationState>((set) => ({
   setIsGeneratingPresentation: (isGenerating) =>
     set({ isGeneratingPresentation: isGenerating }),
   startOutlineGeneration: () =>
-    set({
-      shouldStartOutlineGeneration: true,
-      isGeneratingOutline: true,
-      shouldStartPresentationGeneration: false,
-      isGeneratingPresentation: false,
-      outline: [],
-    }),
+    set({ shouldStartOutlineGeneration: true, isGeneratingOutline: true, shouldStartPresentationGeneration: false, isGeneratingPresentation: false, outline: [] }),
   startPresentationGeneration: () =>
-    set({
-      shouldStartPresentationGeneration: true,
-      isGeneratingPresentation: true,
-    }),
+    set({ shouldStartPresentationGeneration: true, isGeneratingPresentation: true }),
   resetGeneration: () =>
-    set({
-      shouldStartOutlineGeneration: false,
-      shouldStartPresentationGeneration: false,
-      isGeneratingOutline: false,
-      isGeneratingPresentation: false,
-    }),
+    set({ shouldStartOutlineGeneration: false, shouldStartPresentationGeneration: false, isGeneratingOutline: false, isGeneratingPresentation: false }),
 
   setIsThemeCreatorOpen: (update) => set({ isThemeCreatorOpen: update }),
+  
   // Selection state
   isSelecting: false,
   selectedPresentations: [],
